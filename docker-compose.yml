@@ -1,0 +1,19 @@
+# Docker Compose file Reference (https://docs.docker.com/compose/compose-file/)
+
+version: '3'
+
+services:
+  app:
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: build/Dockerfile
+    ports:
+      - "4000:4000"
+    restart: always
+    networks:
+      - backend
+
+networks:
+  backend:
