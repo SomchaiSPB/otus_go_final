@@ -31,8 +31,6 @@ func (h *BaseHandler) Index(w http.ResponseWriter, r *http.Request) {
 	width := chi.URLParam(r, "width")
 	height := chi.URLParam(r, "height")
 
-	fmt.Println(width, height)
-
 	url := strings.Split(r.URL.String(), "/")
 	target := strings.Join(url[4:], "/")
 

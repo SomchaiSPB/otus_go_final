@@ -6,17 +6,24 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"otus_go_final/config"
 	"otus_go_final/internal/controllers"
 	"otus_go_final/internal/services"
 	"testing"
 )
 
 func TestImageService(t *testing.T) {
+	cfg := &config.Config{
+		Port:     "4000",
+		Capacity: 10,
+	}
 	props := services.NewImageProperty(300, 300, "data/snowshoe.jpg")
 
 	headers := http.Header{}
 
 	sut := services.NewProcessService(props, headers)
+
+	_ = sut
 
 	// TODO Write UNIT tests for service logic
 	t.Run("test service success", func(t *testing.T) {
@@ -24,7 +31,9 @@ func TestImageService(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "localhost:4000/fill/600/600/assets.imgix.net/hp/snowshoe.jpg?auto=compress&w=900&h=600&fit=crop", nil)
 		w := httptest.NewRecorder()
 
-		controllers.Index(w, req)
+		handler := controllers.NewBaseHandler(cfg)
+
+		handler.Index(w, req)
 		res := w.Result()
 
 		defer res.Body.Close()

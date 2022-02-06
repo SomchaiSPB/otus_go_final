@@ -15,5 +15,23 @@ services:
     networks:
       - backend
 
+  nginx:
+    image: nginx
+    build:
+      context: .
+      dockerfile: build/DockerfileNginx
+    ports:
+      - "8000:80"
+    restart: always
+    networks:
+      - backend
+    depends_on:
+      - app
+    volumes:
+      - ./build/nginx.conf:/etc/nginx/nginx.conf:ro
+    environment:
+      - NGINX_PORT=80
+    command: [nginx-debug, '-g', 'daemon off;']
+
 networks:
   backend:
