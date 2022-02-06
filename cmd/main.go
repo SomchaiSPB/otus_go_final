@@ -13,7 +13,6 @@ import (
 	"strconv"
 )
 
-var port string
 var cfg *config.Config
 
 func main() {
