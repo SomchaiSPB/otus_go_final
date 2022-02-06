@@ -1,17 +1,13 @@
 package controllers
 
 import (
-	"github.com/go-chi/chi"
 	"log"
 	"net/http"
-	"otus_go_final/internal/errors"
 	"otus_go_final/internal/services"
 	"strconv"
 	"strings"
-)
 
-var (
-	ErrNotFound = &errors.ErrResponse{HTTPStatusCode: 404, StatusText: "Resource not found."}
+	"github.com/go-chi/chi"
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
@@ -41,14 +37,15 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 	image := services.NewImageProperty(widthInt, heightInt, target)
 
-	service := services.NewProcessService(image, r.Header)
+	service := services.NewProcessService(&w, image, r.Header)
 
-	err = service.Invoke()
-
+	resized, err := service.Invoke()
 	if err != nil {
 		log.Println(err)
 		w.Write([]byte(err.Error()))
 	}
 
-	w.Write([]byte("request received"))
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Write(resized)
 }

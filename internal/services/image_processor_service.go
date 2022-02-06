@@ -2,28 +2,33 @@ package services
 
 import (
 	"bytes"
+	"context"
 	"errors"
+	"image"
+
+	// Register jpeg package.
+	_ "image/jpeg"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
+
+	"otus_go_final/internal"
 )
 
-var (
-	ErrBrokenUrl = errors.New("url is broken or invalid")
-)
+var ErrBrokenURL = errors.New("url is broken or invalid")
 
 type ImageProperty struct {
 	width     int
 	height    int
-	targetUrl string
+	targetURL string
 }
 
 func NewImageProperty(width int, height int, target string) *ImageProperty {
 	return &ImageProperty{
 		width:     width,
 		height:    height,
-		targetUrl: target,
+		targetURL: target,
 	}
 }
 
@@ -35,7 +40,7 @@ type ImageProcessService struct {
 	Client         *http.Client
 }
 
-func NewProcessService(props *ImageProperty, headers http.Header) *ImageProcessService {
+func NewProcessService(w *http.ResponseWriter, props *ImageProperty, headers http.Header) *ImageProcessService {
 	return &ImageProcessService{
 		InputProps:     props,
 		OriginalHeader: headers,
@@ -43,72 +48,78 @@ func NewProcessService(props *ImageProperty, headers http.Header) *ImageProcessS
 	}
 }
 
-func (s *ImageProcessService) Invoke() error {
-	err := s.Validate()
-
-	if err != nil {
-		return err
+func (s *ImageProcessService) Invoke() ([]byte, error) {
+	if err := s.Validate(); err != nil {
+		return nil, err
 	}
 
-	response, err := s.ProxyRequest()
-
+	img, err := s.ProxyRequest()
 	if err != nil {
 		log.Println(err)
-		return err
+		return nil, err
 	}
 
-	var buf bytes.Buffer
-
-	n, err := response.Read(buf.Bytes())
-
+	m, format, err := image.Decode(bytes.NewReader(img))
 	if err != nil {
 		log.Println(err)
-		return err
+		return nil, err
 	}
 
-	log.Println(buf)
+	processor := internal.NewImageProcessor(format, m, s.InputProps.width, s.InputProps.height)
 
-	return nil
+	result, err := processor.Resize()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (s *ImageProcessService) Validate() error {
 	schema := "https://"
-	fullUrl := schema + s.InputProps.targetUrl
+	fullURL := schema + s.InputProps.targetURL
 
-	validUrl, err := url.ParseRequestURI(fullUrl)
-
+	validURL, err := url.ParseRequestURI(fullURL)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	s.InputProps.targetUrl = validUrl.String()
+	s.InputProps.targetURL = validURL.String()
 
 	return nil
 }
 
-func (s *ImageProcessService) ProxyRequest() (io.ReadCloser, error) {
-	req, err := http.NewRequest(http.MethodGet, s.InputProps.targetUrl, nil)
+func (s *ImageProcessService) ProxyRequest() ([]byte, error) {
+	var err error
 
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, s.InputProps.targetURL, nil)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
-	for key, val := range s.OriginalHeader {
-		req.Header.Set(key, val[0])
-	}
-
-	res, err := s.Client.Do(req)
-
+	resp, err := s.Client.Do(req)
 	if err != nil {
 		log.Println(err)
-		return nil, err
 	}
 
-	if res.StatusCode != http.StatusOK {
-		return nil, ErrBrokenUrl
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, ErrBrokenURL
 	}
 
-	return res.Body, nil
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return data, nil
 }

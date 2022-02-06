@@ -1,4 +1,4 @@
-package internal_errors
+package internalerrors
 
 type ErrResponse struct {
 	Err            error `json:"-"` // low-level runtime error

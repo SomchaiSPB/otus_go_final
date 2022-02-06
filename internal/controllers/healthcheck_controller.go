@@ -6,9 +6,7 @@ import (
 )
 
 func Check(w http.ResponseWriter, r *http.Request) {
-	_, err := w.Write([]byte("ok"))
-
-	if err != nil {
+	if _, err := w.Write([]byte("ok")); err != nil {
 		log.Println("error writer " + err.Error())
 	}
 }
