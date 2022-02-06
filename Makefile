@@ -4,6 +4,12 @@ build:
 run:
 	docker-compose up -d --build
 
+stop:
+	docker-compose down
+
+restart:
+	docker-compose restart
+
 test:
 	go test -race -count 10 ./test/...
 
