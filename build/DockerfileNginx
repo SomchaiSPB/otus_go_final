@@ -4,6 +4,4 @@ WORKDIR /app
 
 COPY static .
 
-#COPY ./build/nginx.conf /etc/nginx/nginx.conf
-
 CMD ["nginx"]

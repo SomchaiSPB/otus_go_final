@@ -76,7 +76,7 @@ func (s *ImageProcessService) Invoke() ([]byte, error) {
 }
 
 func (s *ImageProcessService) Validate() error {
-	schema := "https://"
+	schema := "http://"
 	fullURL := schema + s.InputProps.targetURL
 
 	validURL, err := url.ParseRequestURI(fullURL)

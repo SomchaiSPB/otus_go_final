@@ -28,7 +28,7 @@ func TestImageService(t *testing.T) {
 	// TODO Write UNIT tests for service logic
 	t.Run("test service success", func(t *testing.T) {
 
-		req := httptest.NewRequest(http.MethodGet, "localhost:4000/fill/600/600/assets.imgix.net/hp/snowshoe.jpg?auto=compress&w=900&h=600&fit=crop", nil)
+		req := httptest.NewRequest(http.MethodGet, "http://localhost:4000/fill/600/600/localhost:8000/snowshoe.jpg", nil)
 		w := httptest.NewRecorder()
 
 		handler := controllers.NewBaseHandler(cfg)
