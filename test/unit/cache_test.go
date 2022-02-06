@@ -35,5 +35,11 @@ func TestCache(t *testing.T) {
 		res, ok = sut.Get("4")
 		require.True(t, ok)
 		require.Equal(t, "fourth value", res)
+
+		sut.Clear()
+
+		res, ok = sut.Get("4")
+		require.False(t, ok)
+		require.Nil(t, res)
 	})
 }
