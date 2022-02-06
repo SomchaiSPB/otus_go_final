@@ -40,7 +40,7 @@ type ImageProcessService struct {
 	Client         *http.Client
 }
 
-func NewProcessService(w *http.ResponseWriter, props *ImageProperty, headers http.Header) *ImageProcessService {
+func NewProcessService(props *ImageProperty, headers http.Header) *ImageProcessService {
 	return &ImageProcessService{
 		InputProps:     props,
 		OriginalHeader: headers,
@@ -98,6 +98,10 @@ func (s *ImageProcessService) ProxyRequest() ([]byte, error) {
 	if err != nil {
 		log.Println(err)
 		return nil, err
+	}
+
+	for key, val := range s.OriginalHeader {
+		req.Header.Set(key, val[0])
 	}
 
 	resp, err := s.Client.Do(req)

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"otus_go_final/internal/services"
@@ -15,6 +16,8 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 	width := chi.URLParam(r, "width")
 	height := chi.URLParam(r, "height")
+
+	fmt.Println(width, height)
 
 	url := strings.Split(r.URL.String(), "/")
 	target := strings.Join(url[4:], "/")
@@ -37,7 +40,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 	image := services.NewImageProperty(widthInt, heightInt, target)
 
-	service := services.NewProcessService(&w, image, r.Header)
+	service := services.NewProcessService(image, r.Header)
 
 	resized, err := service.Invoke()
 	if err != nil {
