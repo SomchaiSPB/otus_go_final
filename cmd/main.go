@@ -5,13 +5,15 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
 	"log"
 	"net/http"
-	"os"
+	"otus_go_final/config"
 	"otus_go_final/internal/controllers"
 )
 
 var port string
+var cfg *config.Config
 
 func main() {
 	r := chi.NewRouter()
@@ -20,8 +22,10 @@ func main() {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)
 
+	handler := controllers.NewBaseHandler(cfg)
+
 	r.Get("/check", controllers.Check)
-	r.Get("/fill/{width}/{height}/{target}*", controllers.Index)
+	r.Get("/fill/{width}/{height}/{target}*", handler.Index)
 
 	r.NotFoundHandler()
 
@@ -34,8 +38,14 @@ func main() {
 func init() {
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("error loading .env file. Using default values")
-		port = "4000"
+		cfg = &config.Config{
+			Port:     "4000",
+			Capacity: 100,
+		}
 	} else {
-		port = os.Getenv("SERVER_PORT")
+		err := envconfig.Process("previewer", &cfg)
+		if err != nil {
+			panic("error load config file")
+		}
 	}
 }

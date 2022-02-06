@@ -2,16 +2,29 @@ package controllers
 
 import (
 	"fmt"
+	"github.com/go-chi/chi"
 	"log"
 	"net/http"
+	"otus_go_final/config"
+	imagecache "otus_go_final/internal/cache"
 	"otus_go_final/internal/services"
 	"strconv"
 	"strings"
-
-	"github.com/go-chi/chi"
 )
 
-func Index(w http.ResponseWriter, r *http.Request) {
+type BaseHandler struct {
+	cache imagecache.Cache
+	cfg   *config.Config
+}
+
+func NewBaseHandler(cfg *config.Config) *BaseHandler {
+	return &BaseHandler{
+		cfg:   cfg,
+		cache: imagecache.NewCache(cfg.Capacity),
+	}
+}
+
+func (h *BaseHandler) Index(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	width := chi.URLParam(r, "width")
@@ -38,9 +51,9 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	image := services.NewImageProperty(widthInt, heightInt, target)
+	imageProp := services.NewImageProperty(widthInt, heightInt, target)
 
-	service := services.NewProcessService(image, r.Header)
+	service := services.NewProcessService(imageProp, r.Header)
 
 	resized, err := service.Invoke()
 	if err != nil {
