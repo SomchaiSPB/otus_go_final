@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"net/http"
-	"os"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/joho/godotenv"
+	"log"
+	"net/http"
+	"os"
 	"otus_go_final/internal/controllers"
 )
 
