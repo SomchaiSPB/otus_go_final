@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"github.com/go-chi/chi"
 	"log"
@@ -51,6 +52,17 @@ func (h *BaseHandler) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	key := asSha256(widthInt, heightInt, target)
+
+	result, ok := h.cache.Get(imagecache.Key(key))
+
+	if ok {
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/octet-stream")
+		w.Write(result.([]byte))
+		return
+	}
+
 	imageProp := services.NewImageProperty(widthInt, heightInt, target)
 
 	service := services.NewProcessService(imageProp, r.Header)
@@ -61,7 +73,19 @@ func (h *BaseHandler) Index(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 	}
 
+	h.cache.Set(imagecache.Key(key), resized)
+
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Write(resized)
+}
+
+func asSha256(width, height int, url string) string {
+	h := sha256.New()
+
+	h.Write([]byte(fmt.Sprintf("%v", width)))
+	h.Write([]byte(fmt.Sprintf("%v", height)))
+	h.Write([]byte(fmt.Sprintf("%v", url)))
+
+	return fmt.Sprintf("%x", h.Sum(nil))
 }

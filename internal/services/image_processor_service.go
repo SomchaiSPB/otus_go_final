@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"go.etcd.io/etcd/server/proxy/grpcproxy/cache"
 	"image"
 	// Register jpeg package.
 	_ "image/jpeg"
@@ -38,7 +37,6 @@ type ImageProcessService struct {
 	OutputImage    []byte
 	OriginalHeader http.Header
 	Client         *http.Client
-	Cache          cache.Cache
 }
 
 func NewProcessService(props *ImageProperty, headers http.Header) *ImageProcessService {
@@ -46,7 +44,6 @@ func NewProcessService(props *ImageProperty, headers http.Header) *ImageProcessS
 		InputProps:     props,
 		OriginalHeader: headers,
 		Client:         &http.Client{},
-		Cache:          cache.NewCache(10),
 	}
 }
 
