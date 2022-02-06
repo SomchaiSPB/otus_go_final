@@ -8,10 +8,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"otus_go_final/config"
 	"otus_go_final/internal/controllers"
+	"strconv"
 )
 
 var port string
+var cfg *config.Config
 
 func main() {
 	r := chi.NewRouter()
@@ -20,12 +23,14 @@ func main() {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)
 
+	handler := controllers.NewBaseHandler(cfg)
+
 	r.Get("/check", controllers.Check)
-	r.Get("/fill/{width}/{height}/{target}*", controllers.Index)
+	r.Get("/fill/{width}/{height}/{target}*", handler.Index)
 
 	r.NotFoundHandler()
 
-	err := http.ListenAndServe(":"+port, r)
+	err := http.ListenAndServe(":"+cfg.Port, r)
 	if err != nil {
 		log.Println("server error " + err.Error())
 	}
@@ -34,8 +39,21 @@ func main() {
 func init() {
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("error loading .env file. Using default values")
-		port = "4000"
-	} else {
-		port = os.Getenv("SERVER_PORT")
+		cfg = &config.Config{
+			Port:     "4000",
+			Capacity: 100,
+		}
+		return
+	}
+
+	capacity, err := strconv.Atoi(os.Getenv("PREVIEWER_CAPACITY"))
+
+	if err != nil {
+		panic("error convertoing port to int " + err.Error())
+	}
+
+	cfg = &config.Config{
+		Port:     os.Getenv("PREVIEWER_PORT"),
+		Capacity: capacity,
 	}
 }

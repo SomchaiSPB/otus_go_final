@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"image"
-
 	// Register jpeg package.
 	_ "image/jpeg"
 	"io"
