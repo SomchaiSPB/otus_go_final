@@ -13,5 +13,10 @@ restart:
 test:
 	go test -race -count 10 ./test/...
 
-lint:
+lint: install-lint-deps
 	golangci-lint run ./...
+
+install-lint-deps:
+	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.41.1
+
+.PHONY: all test clean
