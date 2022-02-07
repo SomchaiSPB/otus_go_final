@@ -34,7 +34,6 @@ jobs:
 
       - name: Unit tests
         run: go test -v -count=1 -race -timeout=1m ./...
-#        working-directory: ${{ env.BRANCH }}
 
   tests_by_makefile:
     runs-on: ubuntu-latest
@@ -47,11 +46,8 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-#      - name: make lint
-#        run: make lint
-
-#      - name: make build
-#        run: make build
+      - name: make lint
+        run: make lint
 
       - name: make test
         run: make test
