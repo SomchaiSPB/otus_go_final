@@ -2,7 +2,6 @@ package unit
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -10,6 +9,8 @@ import (
 	"otus_go_final/internal/controllers"
 	"otus_go_final/internal/services"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestImageService(t *testing.T) {
@@ -27,7 +28,6 @@ func TestImageService(t *testing.T) {
 
 	// TODO Write UNIT tests for service logic
 	t.Run("test service success", func(t *testing.T) {
-
 		req := httptest.NewRequest(http.MethodGet, "http://localhost:4000/fill/600/600/localhost:8000/snowshoe.jpg", nil)
 		w := httptest.NewRecorder()
 

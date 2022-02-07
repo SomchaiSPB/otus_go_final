@@ -4,14 +4,13 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"image"
-	// Register jpeg package.
-	_ "image/jpeg"
+	_ "image/jpeg" // Register jpeg package.
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 
+	"image"
 	"otus_go_final/internal"
 )
 

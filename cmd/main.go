@@ -46,7 +46,6 @@ func init() {
 	}
 
 	capacity, err := strconv.Atoi(os.Getenv("PREVIEWER_CAPACITY"))
-
 	if err != nil {
 		panic("error converting port to int " + err.Error())
 	}

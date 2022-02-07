@@ -3,14 +3,16 @@ package controllers
 import (
 	"crypto/sha256"
 	"fmt"
-	"github.com/go-chi/chi"
 	"log"
 	"net/http"
 	"otus_go_final/config"
-	imagecache "otus_go_final/internal/cache"
 	"otus_go_final/internal/services"
 	"strconv"
 	"strings"
+
+	"github.com/go-chi/chi"
+
+	imagecache "otus_go_final/internal/cache"
 )
 
 type BaseHandler struct {

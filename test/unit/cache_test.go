@@ -1,9 +1,10 @@
 package unit
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/require"
 	imagecache "otus_go_final/internal/cache"
-	"testing"
 )
 
 func TestCache(t *testing.T) {

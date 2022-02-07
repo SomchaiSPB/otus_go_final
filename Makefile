@@ -10,6 +10,10 @@ stop:
 restart:
 	docker-compose restart
 
+lint-fix:
+	gofmt -s -w .
+	golangci-lint run --fix
+
 test:
 	go test -race -count 10 ./test/...
 
