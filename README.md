@@ -1,13 +1,20 @@
-### Обязательные требования для каждого проекта
-* Наличие юнит-тестов на ключевые алгоритмы (core-логику) сервиса.
-* Наличие валидных Dockerfile и Makefile/Taskfile для сервиса.
-* Ветка master успешно проходит пайплайн в CI-CD системе
-  (на ваш вкус, GitHub Actions, Circle CI, Travis CI, Jenkins, GitLab CI и пр.).
-  **Пайплайн должен в себе содержать**:
-    - запуск последней версии `golangci-lint` на весь проект с
-      [конфигом, представленным в данном репозитории](./.golangci.yml);
-    - запуск юнит тестов командой вида `go test -race -count 100`;
-    - сборку бинаря сервиса для версии Go не ниже 1.14. 
+##Checklist
+- [ ] Unit tests for core logic
+- [ ] Integration tests with nginx as target server
+- [ ] Dockerfile, docker-compose, makefile
+- [ ] Github actions
+- [ ] Proxy all headers to target server
+- [ ] Handle response errors from target server 
+- [ ] Env config into action
+- [ ] LRU cache tests
+##Checklist for test cases
+- [ ] картинка найдена в кэше;
+- [ ] удаленный сервер не существует;
+- [ ] удаленный сервер существует, но изображение не найдено (404 Not Found);
+- [ ] удаленный сервер существует, но изображение не изображение, а скажем, exe-файл;
+- [ ] удаленный сервер вернул ошибку;
+- [ ] удаленный сервер вернул изображение;
+- [ ] изображение меньше, чем нужный размер;
 
 # ТЗ на сервис "Превьювер изображений"
 
