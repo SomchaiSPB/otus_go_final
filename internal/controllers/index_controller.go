@@ -14,6 +14,11 @@ import (
 	"otus_go_final/internal/services"
 )
 
+const (
+	HTTP  = "http://"
+	HTTPS = "https://"
+)
+
 type BaseHandler struct {
 	cache imagecache.Cache
 	cfg   *config.Config
@@ -34,6 +39,7 @@ func (h *BaseHandler) Index(w http.ResponseWriter, r *http.Request) {
 
 	url := strings.Split(r.URL.String(), "/")
 	target := strings.Join(url[4:], "/")
+	target = HTTP + target
 
 	widthInt, err := strconv.Atoi(width)
 	if err != nil {

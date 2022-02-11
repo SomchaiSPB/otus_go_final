@@ -21,9 +21,9 @@ func TestImageService(t *testing.T) {
 
 		sut := services.NewProcessService(props, headers)
 
-		code, err := sut.Validate()
+		err := sut.Validate()
 
-		require.Equal(t, 200, code)
+		require.Equal(t, 200, sut.ResponseCode)
 
 		require.NoError(t, err)
 	})
@@ -35,9 +35,8 @@ func TestImageService(t *testing.T) {
 
 		sut := services.NewProcessService(props, headers)
 
-		code, err := sut.Validate()
+		err := sut.Validate()
 
-		require.Nil(t, 200, code)
 		require.Error(t, err)
 	})
 
