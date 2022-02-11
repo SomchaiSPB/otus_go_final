@@ -16,8 +16,7 @@ lint-fix:
 	gofmt -s -w .
 	golangci-lint run --fix
 
-test:
-	docker-compose up -d nginx
+test: run
 	go test -race -count 10 ./test/...
 
 lint: install-lint-deps

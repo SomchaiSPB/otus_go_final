@@ -1,95 +1,52 @@
-##Checklist
-- [ ] Unit tests for core logic
-- [ ] Integration tests with nginx as target server
-- [ ] Dockerfile, docker-compose, makefile
-- [ ] Github actions
-- [ ] Proxy all headers to target server
-- [ ] Handle response errors from target server 
-- [ ] Env config into action
-- [ ] LRU cache tests
-##Checklist for test cases
-- [ ] картинка найдена в кэше;
-- [ ] удаленный сервер не существует;
-- [ ] удаленный сервер существует, но изображение не найдено (404 Not Found);
-- [ ] удаленный сервер существует, но изображение не изображение, а скажем, exe-файл;
-- [ ] удаленный сервер вернул ошибку;
-- [ ] удаленный сервер вернул изображение;
-- [ ] изображение меньше, чем нужный размер;
+#Image Previewer
 
-# ТЗ на сервис "Превьювер изображений"
+This app was developed for the OTUS golang developer course as a final project. 
+Application takes a link to a source image, resizes it
+and returns resized image to a user.
 
-## Общее описание
-Сервис предназначен для изготовления preview (создания изображения
-с новыми размерами на основе имеющегося изображения).
-#### Пример превьюшек в папке [examples](./examples/image-previewer)
+### Installation
+1. Copy env example and change port and cache capacity if needed 
+```shell
+cp env.example .env
+```
+2. Run command 
+```shell 
+make run
+``` 
+the application will start on the selected port. Default port=4000 
 
-## Архитектура
-Сервис представляет собой web-сервер (прокси), загружающий изображения,
-масштабирующий/обрезающий их до нужного формата и возвращающий пользователю.
+### Run tests
+For tests run command ```make test```
 
-## Основной обработчик
-http://cut-service.com/fill/300/200/www.audubon.org/sites/default/files/a1_1902_16_barred-owl_sandra_rothenberg_kk.jpg
+### Run miscellaneous commands
+1. Build binary. The binary file will appear in the ./bin folder
+```shell
+make build
+```
+2. Stop container
+```shell
+make stop
+```
+3. Restart container
+```shell
+make restart
+```
+4. Lint code
+```shell
+make lint
+```
 
-<---- микросервис ----><- размеры превью -><--------- URL исходного изображения --------------------------------->
+### Application API
+In order to resize an image you need to send GET request in the following format:
 
-В URL выше мы видим:
-- http://cut-service.com/fill/300/200/ - endpoint нашего сервиса,
-  в котором 300x200 - это размеры финального изображения.
-- www.audubon.org/sites/default/files/a1_1902_16_barred-owl_sandra_rothenberg_kk.jpg -
-  адрес исходного изображения; сервис должен скачать его, произвести resize, закэшировать и отдать клиенту.
+```
+http://localhost:4000/{width}/{height}/{target.url/image.jpg}
+```
+where width and height is the size of needed image. And target.url is the URL to an image without scheme (http/https)
 
-Сервис должен получить URL исходного изображения, скачать его, изменить до необходимых размеров и вернуть как HTTP-ответ.
+For example:
 
-- Работаем только с HTTP.
-- Ошибки удалённого сервиса или проксируем как есть, или логируем и отвечаем клиенту 502 Bad Gateway.
-- Поддержка JPEG является минимальным и достаточным требованием.
+```
+http://localhost:4000/fill/40/50/etc.usf.edu/techease/wp-content/uploads/2017/12/daylily-flower-and-buds-100.jpg
+```
 
-**Важно**: необходимо проксировать все заголовки исходного HTTP запроса к целевому сервису (www.audubon.org в примере).
-
-Сервис должен сохранить (кэшировать) полученное preview на локальном диске и при повторном запросе
-отдавать изображение с диска, без запроса к удаленному HTTP-серверу.
-
-Поскольку размер места для кэширования ограничен, то для удаления редко используемых изображений
-необходимо использовать алгоритм **"Least Recent Used"**.
-
-## Конфигурация
-Основной параметр конфигурации сервиса - разрешенный размер LRU-кэша.
-
-Он может измеряться как количеством закэшированных изображений, так и суммой их байт (на выбор разработчика).
-
-## Развертывание
-Развертывание микросервиса должно осуществляться командой `make run` (внутри `docker compose up`)
-в директории с проектом.
-
-## Тестирование
-Реализацию алгоритма LRU нужно покрыть unit-тестами.
-
-Для интеграционного тестирования можно использовать контейнер с Nginx в качестве удаленного HTTP-сервера,
-раздающего вам заданный набор изображений.
-
-Необходимо проверить работу сервера в разных сценариях:
-* картинка найдена в кэше;
-* удаленный сервер не существует;
-* удаленный сервер существует, но изображение не найдено (404 Not Found);
-* удаленный сервер существует, но изображение не изображение, а скажем, exe-файл;
-* удаленный сервер вернул ошибку;
-* удаленный сервер вернул изображение;
-* изображение меньше, чем нужный размер;
-  и пр.
-
-## Разбалловка
-Максимум - **15 баллов**
-(при условии выполнения [обязательных требований](./README.md)):
-
-* Реализован HTTP-сервер, проксирующий запросы к удаленному серверу - 2 балла.
-* Реализована нарезка изображений - 2 балла.
-* Кэширование нарезанных изображений на диске - 1 балл.
-* Ограничение кэша одним из способов (LRU кэш) - 1 балл.
-* Прокси сервер правильно передает заголовки запроса - 1 балл.
-* Написаны интеграционные тесты - 3 балла.
-* Тесты адекватны и полностью покрывают фукнционал - 1 балл.
-* Проект возможно собрать чере `make build`, запустить через `make run`
-  и протестировать через `make test` - 1 балл.
-* Понятность и чистота кода - до 3 баллов.
-
-#### Зачёт от 10 баллов
