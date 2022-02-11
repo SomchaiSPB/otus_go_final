@@ -67,7 +67,7 @@ func TestBusinessLogic(t *testing.T) {
 	})
 
 	t.Run("test target file is not an image but pdf", func(t *testing.T) {
-		URL := "localhost:4000/fill/200/400/www.africau.edu/images/default/sample.pdf"
+		URL := "localhost:4000/fill/200/400/localhost:8000/sample.pdf"
 
 		w := httptest.NewRecorder()
 		req := httptest.NewRequest(http.MethodGet, URL, nil)
