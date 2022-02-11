@@ -2,15 +2,15 @@ package unit
 
 import (
 	"net/http"
-	"otus_go_final/internal/services"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"otus_go_final/internal/services"
 )
 
 func TestImageService(t *testing.T) {
 	const (
-		validURL   = "https://media.istockphoto.com/photos/asian-woman-holding-covid-rapid-test-and-waiting-for-results-picture-id1345296778"
+		validURL   = "https://media.istockphoto.com/photos/asian-woman-holding-covid-rapid-test-and-waiting-for-results-picture-id1345296778" //nolint
 		inValidURL = "http//google.com"
 	)
 

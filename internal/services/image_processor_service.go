@@ -5,13 +5,12 @@ import (
 	"context"
 	"errors"
 	"image"
-
-	// Register jpeg package.
-	_ "image/jpeg"
+	_ "image/jpeg" //nolint
 	"io"
 	"log"
 	"net/http"
 	"net/url"
+
 	"otus_go_final/internal"
 )
 
@@ -21,11 +20,12 @@ const (
 )
 
 var (
-	ErrBrokenURL        = errors.New("url is broken or invalid")
-	ErrRedirectResponse = errors.New("target URL redirect status")
-	ErrNotFound         = errors.New("target URL not found")
-	ErrInternalServer   = errors.New("target server internal error")
-	ErrNotImageType     = errors.New("target file is not an image")
+	ErrBrokenURL          = errors.New("url is broken or invalid")
+	ErrRedirectResponse   = errors.New("target URL redirect status")
+	ErrNotFound           = errors.New("target URL not found")
+	ErrInternalServer     = errors.New("target server internal error")
+	ErrNotImageType       = errors.New("target file is not an image")
+	ErrImageSizeViolation = errors.New("target image size is less than wanted")
 )
 
 type ImageProperty struct {
@@ -74,6 +74,16 @@ func (s *ImageProcessService) Invoke() ([]byte, error) {
 		return nil, err
 	}
 
+	im, _, err := image.DecodeConfig(bytes.NewReader(img))
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	if im.Width <= s.InputProps.width || im.Height <= s.InputProps.height {
+		return nil, ErrImageSizeViolation
+	}
+
 	m, format, err := image.Decode(bytes.NewReader(img))
 	if err != nil {
 		log.Println(err)
@@ -101,7 +111,6 @@ func (s *ImageProcessService) Validate() (int, error) {
 	validURL.Scheme = HTTP
 
 	u, err := url.ParseRequestURI(validURL.String())
-
 	if err != nil {
 		log.Println(err)
 		return http.StatusInternalServerError, err
@@ -117,18 +126,6 @@ func (s *ImageProcessService) Validate() (int, error) {
 			return
 		}
 	}()
-
-	if res.StatusCode >= 300 && res.StatusCode <= 399 {
-		newURL := res.Header.Get("Location")
-
-		res, err = s.Client.Get(newURL)
-		defer func() {
-			if err = res.Body.Close(); err != nil {
-				log.Println(err)
-				return
-			}
-		}()
-	}
 
 	return res.StatusCode, err
 }

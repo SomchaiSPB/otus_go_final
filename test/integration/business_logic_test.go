@@ -84,5 +84,4 @@ func TestBusinessLogic(t *testing.T) {
 
 		require.Equal(t, "target file is not an image", string(data))
 	})
-
 }
