@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Unit tests
-        run: go test -v -count=10 -race -timeout=1m ./...
+        run: go test -v -count=10 -race -timeout=1m ./test/unit...
 
   tests_by_makefile:
     runs-on: ubuntu-latest

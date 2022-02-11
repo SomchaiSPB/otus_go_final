@@ -1,12 +1,7 @@
 package unit
 
 import (
-	"fmt"
-	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
-	"otus_go_final/config"
-	"otus_go_final/internal/controllers"
 	"otus_go_final/internal/services"
 	"testing"
 
@@ -14,34 +9,61 @@ import (
 )
 
 func TestImageService(t *testing.T) {
-	cfg := &config.Config{
-		Port:     "4000",
-		Capacity: 10,
-	}
-	props := services.NewImageProperty(300, 300, "data/snowshoe.jpg")
+	const (
+		validURL   = "https://media.istockphoto.com/photos/asian-woman-holding-covid-rapid-test-and-waiting-for-results-picture-id1345296778"
+		inValidURL = "http//google.com"
+	)
 
-	headers := http.Header{}
+	t.Run("test validate no error", func(t *testing.T) {
+		props := services.NewImageProperty(300, 300, validURL)
 
-	sut := services.NewProcessService(props, headers)
+		headers := http.Header{}
 
-	_ = sut
+		sut := services.NewProcessService(props, headers)
 
-	// TODO Write UNIT tests for service logic
-	t.Run("test service success", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodGet, "http://localhost:4000/fill/600/600/localhost:8000/snowshoe.jpg", nil)
-		w := httptest.NewRecorder()
+		code, err := sut.Validate()
 
-		handler := controllers.NewBaseHandler(cfg)
-
-		handler.Index(w, req)
-		res := w.Result()
-
-		defer res.Body.Close()
-
-		data, err := ioutil.ReadAll(res.Body)
+		require.Equal(t, 200, code)
 
 		require.NoError(t, err)
+	})
 
-		fmt.Println(data, res.Body)
+	t.Run("test validate returns error", func(t *testing.T) {
+		props := services.NewImageProperty(300, 300, inValidURL)
+
+		headers := http.Header{}
+
+		sut := services.NewProcessService(props, headers)
+
+		code, err := sut.Validate()
+
+		require.Nil(t, 200, code)
+		require.Error(t, err)
+	})
+
+	t.Run("test proxy call func", func(t *testing.T) {
+		props := services.NewImageProperty(300, 300, validURL)
+
+		headers := http.Header{}
+
+		sut := services.NewProcessService(props, headers)
+
+		res, err := sut.ProxyRequest()
+
+		require.NoError(t, err)
+		require.NotEmpty(t, res)
+	})
+
+	t.Run("test service invoke", func(t *testing.T) {
+		props := services.NewImageProperty(300, 300, validURL)
+
+		headers := http.Header{}
+
+		sut := services.NewProcessService(props, headers)
+
+		res, err := sut.ProxyRequest()
+
+		require.NoError(t, err)
+		require.NotEmpty(t, res)
 	})
 }

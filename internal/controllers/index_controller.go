@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"otus_go_final/config"
-	"otus_go_final/internal/services"
 	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi"
 
+	"otus_go_final/config"
 	imagecache "otus_go_final/internal/cache"
+	"otus_go_final/internal/services"
 )
 
 type BaseHandler struct {
@@ -39,6 +39,8 @@ func (h *BaseHandler) Index(w http.ResponseWriter, r *http.Request) {
 	widthInt, err := strconv.Atoi(width)
 	if err != nil {
 		log.Println("error converting width " + err.Error())
+		w.Header().Set("Content-Type", "text/html; charset=UTF-8")
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
 
 		return
@@ -47,6 +49,8 @@ func (h *BaseHandler) Index(w http.ResponseWriter, r *http.Request) {
 	heightInt, err := strconv.Atoi(height)
 	if err != nil {
 		log.Println("error converting height " + err.Error())
+		w.Header().Set("Content-Type", "text/html; charset=UTF-8")
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
 
 		return
@@ -54,12 +58,13 @@ func (h *BaseHandler) Index(w http.ResponseWriter, r *http.Request) {
 
 	key := asSha256(widthInt, heightInt, target)
 
-	result, ok := h.cache.Get(imagecache.Key(key))
+	result, hit := h.cache.Get(imagecache.Key(key))
 
-	if ok {
-		w.WriteHeader(http.StatusOK)
+	if hit {
 		w.Header().Set("Content-Type", "application/octet-stream")
+		w.WriteHeader(http.StatusOK)
 		w.Write(result.([]byte))
+
 		return
 	}
 
@@ -70,7 +75,11 @@ func (h *BaseHandler) Index(w http.ResponseWriter, r *http.Request) {
 	resized, err := service.Invoke()
 	if err != nil {
 		log.Println(err)
+		w.WriteHeader(service.ResponseCode)
+		w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 		w.Write([]byte(err.Error()))
+
+		return
 	}
 
 	h.cache.Set(imagecache.Key(key), resized)

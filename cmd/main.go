@@ -2,15 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
-	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
+
 	"otus_go_final/config"
 	"otus_go_final/internal/controllers"
-	"strconv"
 )
 
 var cfg *config.Config
@@ -32,6 +30,7 @@ func main() {
 	err := http.ListenAndServe(":"+cfg.Port, r)
 	if err != nil {
 		log.Println("server error " + err.Error())
+		return
 	}
 }
 
@@ -47,7 +46,7 @@ func init() {
 
 	capacity, err := strconv.Atoi(os.Getenv("PREVIEWER_CAPACITY"))
 	if err != nil {
-		panic("error converting port to int " + err.Error())
+		panic("error converting capacity to int " + err.Error())
 	}
 
 	cfg = &config.Config{

@@ -4,17 +4,29 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	_ "image/jpeg" // Register jpeg package.
+	"image"
+
+	// Register jpeg package.
+	_ "image/jpeg"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
-
-	"image"
 	"otus_go_final/internal"
 )
 
-var ErrBrokenURL = errors.New("url is broken or invalid")
+const (
+	HTTP  = "http"
+	HTTPS = "https"
+)
+
+var (
+	ErrBrokenURL        = errors.New("url is broken or invalid")
+	ErrRedirectResponse = errors.New("target URL redirect status")
+	ErrNotFound         = errors.New("target URL not found")
+	ErrInternalServer   = errors.New("target server internal error")
+	ErrNotImageType     = errors.New("target file is not an image")
+)
 
 type ImageProperty struct {
 	width     int
@@ -36,6 +48,7 @@ type ImageProcessService struct {
 	OutputImage    []byte
 	OriginalHeader http.Header
 	Client         *http.Client
+	ResponseCode   int
 }
 
 func NewProcessService(props *ImageProperty, headers http.Header) *ImageProcessService {
@@ -47,7 +60,11 @@ func NewProcessService(props *ImageProperty, headers http.Header) *ImageProcessS
 }
 
 func (s *ImageProcessService) Invoke() ([]byte, error) {
-	if err := s.Validate(); err != nil {
+	code, err := s.Validate()
+	s.ResponseCode = code
+
+	if err != nil {
+		log.Println(code, err)
 		return nil, err
 	}
 
@@ -74,19 +91,46 @@ func (s *ImageProcessService) Invoke() ([]byte, error) {
 	return result, nil
 }
 
-func (s *ImageProcessService) Validate() error {
-	schema := "http://"
-	fullURL := schema + s.InputProps.targetURL
-
-	validURL, err := url.ParseRequestURI(fullURL)
+func (s *ImageProcessService) Validate() (int, error) {
+	validURL, err := url.Parse(s.InputProps.targetURL)
 	if err != nil {
 		log.Println(err)
-		return err
+		return http.StatusInternalServerError, err
 	}
 
-	s.InputProps.targetURL = validURL.String()
+	validURL.Scheme = HTTP
 
-	return nil
+	u, err := url.ParseRequestURI(validURL.String())
+
+	if err != nil {
+		log.Println(err)
+		return http.StatusInternalServerError, err
+	}
+
+	s.InputProps.targetURL = u.String()
+
+	res, err := s.Client.Get(s.InputProps.targetURL)
+
+	defer func() {
+		if err = res.Body.Close(); err != nil {
+			log.Println(err)
+			return
+		}
+	}()
+
+	if res.StatusCode >= 300 && res.StatusCode <= 399 {
+		newURL := res.Header.Get("Location")
+
+		res, err = s.Client.Get(newURL)
+		defer func() {
+			if err = res.Body.Close(); err != nil {
+				log.Println(err)
+				return
+			}
+		}()
+	}
+
+	return res.StatusCode, err
 }
 
 func (s *ImageProcessService) ProxyRequest() ([]byte, error) {
@@ -105,6 +149,7 @@ func (s *ImageProcessService) ProxyRequest() ([]byte, error) {
 	resp, err := s.Client.Do(req)
 	if err != nil {
 		log.Println(err)
+		return nil, err
 	}
 
 	defer func() {
@@ -121,6 +166,13 @@ func (s *ImageProcessService) ProxyRequest() ([]byte, error) {
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Println(err)
+		return nil, err
+	}
+
+	fileType := http.DetectContentType(data)
+
+	if fileType != "image/jpeg" {
+		return nil, ErrNotImageType
 	}
 
 	return data, nil
