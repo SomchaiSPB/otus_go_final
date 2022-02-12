@@ -1,33 +1,34 @@
-package internal
+package services
 
 import (
 	"bytes"
+	"github.com/nfnt/resize"
 	"image"
 	"image/jpeg"
-
-	"github.com/nfnt/resize"
 )
 
 type ImageProcessor struct {
 	format string
 	image  image.Image
-	width  int
-	height int
+	props  *ImageProperty
 }
 
-func NewImageProcessor(format string, image image.Image, width int, height int) *ImageProcessor {
+type Resizer interface {
+	Resize() ([]byte, error)
+}
+
+func NewImageProcessor(format string, image image.Image, p *ImageProperty) *ImageProcessor {
 	return &ImageProcessor{
 		format: format,
 		image:  image,
-		width:  width,
-		height: height,
+		props:  p,
 	}
 }
 
 func (p *ImageProcessor) Resize() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
-	newImage := resize.Resize(uint(p.width), uint(p.height), p.image, resize.Lanczos3)
+	newImage := resize.Resize(uint(p.props.GetWidth()), uint(p.props.GetHeight()), p.image, resize.Lanczos3)
 
 	err := jpeg.Encode(buf, newImage, nil)
 	if err != nil {

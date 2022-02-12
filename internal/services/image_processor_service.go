@@ -10,8 +10,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-
-	"otus_go_final/internal"
 )
 
 var (
@@ -38,6 +36,7 @@ func NewImageProperty(width int, height int, target string) *ImageProperty {
 }
 
 type ImageProcessService struct {
+	Resizer        Resizer
 	InputProps     *ImageProperty
 	OutputHeaders  string
 	OutputImage    []byte
@@ -52,6 +51,14 @@ func NewProcessService(props *ImageProperty, headers http.Header) *ImageProcessS
 		OriginalHeader: headers,
 		Client:         &http.Client{},
 	}
+}
+
+func (s *ImageProperty) GetWidth() int {
+	return s.width
+}
+
+func (s *ImageProperty) GetHeight() int {
+	return s.height
 }
 
 func (s *ImageProcessService) Invoke() ([]byte, error) {
@@ -83,9 +90,9 @@ func (s *ImageProcessService) Invoke() ([]byte, error) {
 		return nil, err
 	}
 
-	processor := internal.NewImageProcessor(format, m, s.InputProps.width, s.InputProps.height)
+	s.Resizer = NewImageProcessor(format, m, s.InputProps)
 
-	result, err := processor.Resize()
+	result, err := s.Resizer.Resize()
 	if err != nil {
 		return nil, err
 	}

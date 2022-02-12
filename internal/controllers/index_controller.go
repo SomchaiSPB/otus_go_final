@@ -80,8 +80,8 @@ func (h *BaseHandler) Index(w http.ResponseWriter, r *http.Request) {
 	resized, err := service.Invoke()
 	if err != nil {
 		log.Println(err)
-		w.WriteHeader(service.ResponseCode)
 		w.Header().Set("Content-Type", "text/html; charset=UTF-8")
+		w.WriteHeader(service.ResponseCode)
 		w.Write([]byte(err.Error()))
 
 		return

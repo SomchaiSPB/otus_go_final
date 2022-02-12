@@ -6,11 +6,13 @@ import (
 	"image"
 	"io/ioutil"
 	"log"
-	"otus_go_final/internal"
+	"otus_go_final/internal/services"
 	"testing"
 )
 
 func TestImageResizer(t *testing.T) {
+	props := services.NewImageProperty(50, 50, "")
+
 	t.Run("test image resize success", func(t *testing.T) {
 		file, err := ioutil.ReadFile("../static/snowshoe.jpg")
 
@@ -20,7 +22,7 @@ func TestImageResizer(t *testing.T) {
 
 		require.NoError(t, err)
 
-		sut := internal.NewImageProcessor(format, m, 50, 50)
+		sut := services.NewImageProcessor(format, m, props)
 
 		res, err := sut.Resize()
 
