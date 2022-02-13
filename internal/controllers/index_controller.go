@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"otus_go_final/config"
+	"otus_go_final/internal/services"
 	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi"
-	"otus_go_final/config"
+
 	imagecache "otus_go_final/internal/cache"
-	"otus_go_final/internal/services"
 )
 
 const (
