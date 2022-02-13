@@ -73,9 +73,10 @@ func (h *BaseHandler) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	imageProp := services.NewImageProperty(widthInt, heightInt, target)
+	imageProp := services.NewImageProperty(widthInt, heightInt, target, r.Header)
+	resizer := services.NewImageResizer(imageProp)
 
-	service := services.NewProcessService(imageProp, r.Header)
+	service := services.NewProcessService(imageProp, resizer)
 
 	resized, err := service.Invoke()
 	if err != nil {
