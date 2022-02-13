@@ -18,7 +18,7 @@ jobs:
       - name: go get
         run: go mod tidy
 
-  tests:
+  unit_tests:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go
@@ -32,7 +32,7 @@ jobs:
       - name: Unit tests
         run: go test -v -count=10 -race -timeout=1m ./test/unit...
 
-  tests_by_makefile:
+  makefile_lint_tests:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go
