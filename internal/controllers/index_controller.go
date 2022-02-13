@@ -6,13 +6,12 @@ import (
 	"log"
 	"net/http"
 	"otus_go_final/config"
+	"otus_go_final/internal/cache"
 	"otus_go_final/internal/services"
 	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi"
-
-	imagecache "otus_go_final/internal/cache"
 )
 
 const (

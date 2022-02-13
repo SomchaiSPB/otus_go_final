@@ -5,11 +5,12 @@ import (
 	"context"
 	"errors"
 	"image"
-	_ "image/jpeg" //nolint
 	"io"
 	"log"
 	"net/http"
 	"net/url"
+
+	_ "image/jpeg" // Side effect import.
 )
 
 var (

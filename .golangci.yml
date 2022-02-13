@@ -20,7 +20,7 @@ linters:
     - exhaustive
     - exportloopref
     - funlen
-    - gci
+#    - gci
     - gocognit
     - goconst
     - gocritic

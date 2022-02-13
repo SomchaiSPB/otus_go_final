@@ -2,9 +2,10 @@ package services
 
 import (
 	"bytes"
-	"github.com/nfnt/resize"
 	"image"
 	"image/jpeg"
+
+	"github.com/nfnt/resize"
 )
 
 type JpegResizer struct {
