@@ -2,10 +2,10 @@ package unit
 
 import (
 	"net/http"
+	"otus_go_final/internal/services"
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"otus_go_final/internal/services"
 )
 
 func TestImageService(t *testing.T) {

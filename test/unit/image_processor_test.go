@@ -5,10 +5,10 @@ import (
 	"image"
 	"io/ioutil"
 	"log"
+	"otus_go_final/internal/services"
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"otus_go_final/internal/services"
 )
 
 func TestImageResizer(t *testing.T) {
