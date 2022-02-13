@@ -62,9 +62,7 @@ func (s *ImageProperty) GetHeight() int {
 }
 
 func (s *ImageProcessService) Invoke() ([]byte, error) {
-	err := s.Validate()
-
-	if err != nil {
+	if err := s.Validate(); err != nil {
 		return nil, err
 	}
 
@@ -74,7 +72,6 @@ func (s *ImageProcessService) Invoke() ([]byte, error) {
 	}
 
 	im, _, err := image.DecodeConfig(bytes.NewReader(img))
-
 	if err != nil {
 		return nil, err
 	}
@@ -84,13 +81,12 @@ func (s *ImageProcessService) Invoke() ([]byte, error) {
 		return nil, ErrImageSizeViolation
 	}
 
-	m, format, err := image.Decode(bytes.NewReader(img))
-
+	m, _, err := image.Decode(bytes.NewReader(img))
 	if err != nil {
 		return nil, err
 	}
 
-	s.Resizer = NewImageProcessor(format, m, s.InputProps)
+	s.Resizer = NewImageProcessor(m, s.InputProps)
 
 	result, err := s.Resizer.Resize()
 	if err != nil {
@@ -102,7 +98,6 @@ func (s *ImageProcessService) Invoke() ([]byte, error) {
 
 func (s *ImageProcessService) Validate() error {
 	validURL, err := url.ParseRequestURI(s.InputProps.targetURL)
-
 	if err != nil {
 		s.ResponseCode = http.StatusInternalServerError
 		return err
@@ -111,7 +106,6 @@ func (s *ImageProcessService) Validate() error {
 	s.InputProps.targetURL = validURL.String()
 
 	res, err := s.Client.Get(s.InputProps.targetURL)
-
 	if err != nil {
 		s.ResponseCode = http.StatusInternalServerError
 		return ErrServerNotExists
@@ -174,7 +168,7 @@ func (s *ImageProcessService) ProxyRequest() ([]byte, error) {
 
 	switch fileType {
 	case "image/jpeg":
-		//case "image/png":
+		// case "image/png":
 		return data, nil
 	default:
 		s.ResponseCode = http.StatusBadRequest

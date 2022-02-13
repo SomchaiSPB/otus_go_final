@@ -8,20 +8,18 @@ import (
 )
 
 type ImageProcessor struct {
-	format string
-	image  image.Image
-	props  *ImageProperty
+	image image.Image
+	props *ImageProperty
 }
 
 type Resizer interface {
 	Resize() ([]byte, error)
 }
 
-func NewImageProcessor(format string, image image.Image, p *ImageProperty) *ImageProcessor {
+func NewImageProcessor(image image.Image, p *ImageProperty) *ImageProcessor {
 	return &ImageProcessor{
-		format: format,
-		image:  image,
-		props:  p,
+		image: image,
+		props: p,
 	}
 }
 

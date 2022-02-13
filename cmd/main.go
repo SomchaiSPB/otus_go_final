@@ -5,13 +5,13 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"otus_go_final/config"
+	"otus_go_final/internal/controllers"
 	"strconv"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/joho/godotenv"
-	"otus_go_final/config"
-	"otus_go_final/internal/controllers"
 )
 
 var cfg *config.Config

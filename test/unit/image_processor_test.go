@@ -2,12 +2,13 @@ package unit
 
 import (
 	"bytes"
-	"github.com/stretchr/testify/require"
 	"image"
 	"io/ioutil"
 	"log"
-	"otus_go_final/internal/services"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+	"otus_go_final/internal/services"
 )
 
 func TestImageResizer(t *testing.T) {
@@ -18,18 +19,17 @@ func TestImageResizer(t *testing.T) {
 
 		require.NoError(t, err)
 
-		m, format, err := image.Decode(bytes.NewReader(file))
+		m, _, err := image.Decode(bytes.NewReader(file))
 
 		require.NoError(t, err)
 
-		sut := services.NewImageProcessor(format, m, props)
+		sut := services.NewImageProcessor(m, props)
 
 		res, err := sut.Resize()
 
 		require.NoError(t, err)
 
 		resizedInfo, _, err := image.DecodeConfig(bytes.NewReader(res))
-
 		if err != nil {
 			log.Println(err)
 		}
