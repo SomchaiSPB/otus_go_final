@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"otus_go_final/config"
-	"otus_go_final/internal/services"
 	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi"
-
+	"otus_go_final/config"
 	imagecache "otus_go_final/internal/cache"
+	"otus_go_final/internal/services"
 )
 
 const (
@@ -74,9 +73,10 @@ func (h *BaseHandler) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	imageProp := services.NewImageProperty(widthInt, heightInt, target)
+	imageProp := services.NewImageProperty(widthInt, heightInt, target, r.Header)
+	resizer := services.NewImageResizer(imageProp)
 
-	service := services.NewProcessService(imageProp, r.Header)
+	service := services.NewProcessService(imageProp, resizer)
 
 	resized, err := service.Invoke()
 	if err != nil {

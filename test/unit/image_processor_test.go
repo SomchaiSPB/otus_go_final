@@ -12,7 +12,7 @@ import (
 )
 
 func TestImageResizer(t *testing.T) {
-	props := services.NewImageProperty(50, 50, "")
+	props := services.NewImageProperty(50, 50, "", nil)
 
 	t.Run("test image resize success", func(t *testing.T) {
 		file, err := ioutil.ReadFile("../static/snowshoe.jpg")
@@ -23,9 +23,9 @@ func TestImageResizer(t *testing.T) {
 
 		require.NoError(t, err)
 
-		sut := services.NewImageProcessor(m, props)
+		sut := services.NewImageResizer(props)
 
-		res, err := sut.Resize()
+		res, err := sut.Resize(m)
 
 		require.NoError(t, err)
 

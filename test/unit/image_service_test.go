@@ -1,7 +1,6 @@
 package unit
 
 import (
-	"net/http"
 	"otus_go_final/internal/services"
 	"testing"
 
@@ -14,12 +13,12 @@ func TestImageService(t *testing.T) {
 		inValidURL = "http//google.com"
 	)
 
+	resizer := new(services.JpegResizer)
+
 	t.Run("test validate no error", func(t *testing.T) {
-		props := services.NewImageProperty(300, 300, validURL)
+		props := services.NewImageProperty(300, 300, validURL, nil)
 
-		headers := http.Header{}
-
-		sut := services.NewProcessService(props, headers)
+		sut := services.NewProcessService(props, resizer)
 
 		err := sut.Validate()
 
@@ -29,11 +28,9 @@ func TestImageService(t *testing.T) {
 	})
 
 	t.Run("test validate returns error", func(t *testing.T) {
-		props := services.NewImageProperty(300, 300, inValidURL)
+		props := services.NewImageProperty(300, 300, inValidURL, nil)
 
-		headers := http.Header{}
-
-		sut := services.NewProcessService(props, headers)
+		sut := services.NewProcessService(props, resizer)
 
 		err := sut.Validate()
 
@@ -41,11 +38,9 @@ func TestImageService(t *testing.T) {
 	})
 
 	t.Run("test proxy call func", func(t *testing.T) {
-		props := services.NewImageProperty(300, 300, validURL)
+		props := services.NewImageProperty(300, 300, validURL, nil)
 
-		headers := http.Header{}
-
-		sut := services.NewProcessService(props, headers)
+		sut := services.NewProcessService(props, resizer)
 
 		res, err := sut.ProxyRequest()
 
@@ -54,11 +49,9 @@ func TestImageService(t *testing.T) {
 	})
 
 	t.Run("test service invoke", func(t *testing.T) {
-		props := services.NewImageProperty(300, 300, validURL)
+		props := services.NewImageProperty(300, 300, validURL, nil)
 
-		headers := http.Header{}
-
-		sut := services.NewProcessService(props, headers)
+		sut := services.NewProcessService(props, resizer)
 
 		res, err := sut.ProxyRequest()
 
